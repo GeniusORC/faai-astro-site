@@ -32,3 +32,36 @@ collections:
       - { label: "标签", name: "tags", widget: "list", field: { label: "标签", name: "tag", widget: "string" }, default: [] }
       - { label: "封面图", name: "cover", widget: "image" }
       - { label: "正文", name: "body", widget: "markdown", required: true }
+
+  - name: "demands"
+    label: "企业需求"
+    label_singular: "企业需求"
+    folder: "src/content/demands"
+    create: true
+    slug: "{{slug}}"
+    path: "{{slug}}.md"
+    fields:
+      - { label: "需求标题", name: "title", widget: "string", required: true }
+      - { label: "发布日期", name: "date", widget: "datetime", required: true }
+      - { label: "需求企业", name: "company", widget: "string", required: true }
+      - { label: "需求类型", name: "category", widget: "select", options: ["技术攻关", "人才团队", "场景数据", "成果转化", "其他"], default: "技术攻关" }
+      - { label: "联系方式", name: "contact", widget: "string", required: false, hint: "可填邮箱或电话，不填则显示 qigongwei@faai.org" }
+      - { label: "摘要", name: "excerpt", widget: "string" }
+      - { label: "正文", name: "body", widget: "markdown", required: true }
+
+  - name: "experts"
+    label: "专家名录"
+    label_singular: "专家"
+    folder: "src/content/experts"
+    create: true
+    slug: "{{slug}}"
+    path: "{{slug}}.md"
+    fields:
+      - { label: "姓名", name: "name", widget: "string", required: true }
+      - { label: "职称/职务", name: "title", widget: "string", required: true }
+      - { label: "所在单位", name: "org", widget: "string", required: true }
+      - { label: "研究方向", name: "field", widget: "string", required: true }
+      - { label: "电子邮箱", name: "email", widget: "string", required: false }
+      - { label: "头像", name: "avatar", widget: "image", required: false }
+      - { label: "排序", name: "order", widget: "number", default: 0, value_type: "int", required: false }
+      - { label: "简介", name: "body", widget: "markdown", required: false }

@@ -243,3 +243,37 @@ img { max-width: 100%; display: block; }
 .site-footer a { color: #cdd9ec; display: block; padding: 4px 0; }
 .site-footer a:hover { color: #fff; text-decoration: none; }
 .site-footer .copy { border-top: 1px solid rgba(255,255,255,.12); margin-top: 24px; padding-top: 16px; color: #9fb0cc; }
+
+/* ---------- Demand list ---------- */
+.demand-list { display: grid; gap: 14px; margin: 10px 0 24px; }
+.demand-item {
+  display: block; padding: 18px 20px; border-radius: var(--radius);
+  background: var(--bg-alt); color: var(--ink);
+  border-top: 3px solid var(--blue); transition: border-color .15s ease;
+}
+.demand-item:hover { text-decoration: none; border-top-color: var(--red); }
+.demand-item .demand-meta { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; }
+.demand-category {
+  background: var(--blue); color: #fff; padding: 3px 10px; border-radius: 5px; font-size: 12px;
+}
+.demand-date { color: var(--muted); font-size: 13px; }
+.demand-item h3 { margin: 0 0 6px; font-size: 18px; color: var(--blue); }
+.demand-item:hover h3 { color: var(--red); }
+.demand-company { margin: 0 0 6px; font-size: 14px; color: var(--muted); }
+.demand-excerpt { margin: 0; font-size: 15px; color: var(--muted); line-height: 1.65; }
+.demand-detail-header { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
+.demand-contact { margin-top: 28px; padding: 14px 16px; background: var(--bg-alt); border-radius: 8px; font-size: 15px; }
+
+/* ---------- Expert grid ---------- */
+.expert-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin: 10px 0 24px; }
+@media (min-width: 620px) { .expert-grid { grid-template-columns: 1fr 1fr; } }
+.expert-card {
+  padding: 18px 20px; border-radius: var(--radius); background: var(--bg-alt);
+  border-top: 3px solid var(--blue);
+}
+.expert-name { font-size: 18px; font-weight: 800; color: var(--blue); margin-bottom: 6px; }
+.expert-title { font-size: 14px; color: var(--muted); margin-bottom: 4px; }
+.expert-org { font-size: 14px; color: var(--muted); margin-bottom: 8px; }
+.expert-field { font-size: 13px; color: var(--ink); background: #fff; display: inline-block; padding: 3px 10px; border-radius: 5px; margin-bottom: 8px; }
+.expert-email { font-size: 13px; color: var(--muted); word-break: break-all; }
+.expert-email a { color: var(--blue); }

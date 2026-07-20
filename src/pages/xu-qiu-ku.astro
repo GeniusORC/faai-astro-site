@@ -1,5 +1,9 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const demands = (await getCollection('demands'))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
 
 <BaseLayout title="企业需求库 | 福建省人工智能学会企业工作委员会">
@@ -18,6 +22,25 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         · 场景与数据合作需求
       </p>
 
+      <h2>最新需求</h2>
+      {demands.length === 0 ? (
+        <p>暂无已发布需求，敬请期待。</p>
+      ) : (
+        <div class="demand-list">
+          {demands.map((d) => (
+            <a class="demand-item" href={`/demands/${d.slug}`}>
+              <div class="demand-meta">
+                <span class="demand-category">{d.data.category}</span>
+                <span class="demand-date">{d.data.date.toLocaleDateString('zh-CN')}</span>
+              </div>
+              <h3>{d.data.title}</h3>
+              <p class="demand-company">{d.data.company}</p>
+              <p class="demand-excerpt">{d.data.excerpt}</p>
+            </a>
+          ))}
+        </div>
+      )}
+
       <h2>提交需求</h2>
       <p>
         需求提交表单正在接入中。现阶段可通过「活动通知」栏目关注线下需求对接会，或将需求发送至
@@ -27,11 +50,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div class="note">
         说明：企业需求库的"结构化检索 / 在线提交"为下一阶段功能。本站为静态架构，检索可由前端（Pagefind / Fuse.js）实现，提交需接入表单后端（见各申请页）。
       </div>
-
-      <h2>近期征集</h2>
-      <p>
-        详见 <a href="/notices">活动通知</a> 中的《企业人工智能需求征集启动》。
-      </p>
     </article>
   </div>
 </BaseLayout>

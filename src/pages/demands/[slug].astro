@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const demands = await getCollection('demands');
+  return demands.map((d) => ({
+    params: { slug: d.slug },
+    props: { demand: d },
+  }));
+}
+
+const { demand } = Astro.props;
+const { Content } = await demand.render();
+---
+
+<BaseLayout title={`${demand.data.title} | 企业需求库`}>
+  <div class="wrap">
+    <div class="crumbs"><a href="/">首页</a> › <a href="/xu-qiu-ku">企业需求库</a> › {demand.data.title}</div>
+    <article class="page">
+      <div class="demand-detail-header">
+        <span class="demand-category">{demand.data.category}</span>
+        <span class="demand-date">{demand.data.date.toLocaleDateString('zh-CN')}</span>
+      </div>
+      <h1>{demand.data.title}</h1>
+      <p class="demand-company"><strong>需求企业：</strong>{demand.data.company}</p>
+      <div class="content-body">
+        <Content />
+      </div>
+      <p class="demand-contact">
+        <strong>对接联系：</strong>{demand.data.contact || 'qigongwei@faai.org'}
+      </p>
+    </article>
+  </div>
+</BaseLayout>
