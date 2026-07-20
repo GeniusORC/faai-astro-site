@@ -6,12 +6,29 @@ interface Props {
   desc: string;
   btn: string;
 }
-const { href, icon, title, desc, btn } = Astro.props;
+const { href, title, desc, btn } = Astro.props;
+
+// 按 href 映射线性 SVG 图标（单色描边，学术扁平风）
+const ICONS: Record<string, string> = {
+  '/xu-qiu-ku':
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>',
+  '/zhuan-jia':
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6"/></svg>',
+  '/ru-hui':
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="3.4"/><path d="M3.5 19c0-3 2.9-5 6.5-5 1.2 0 2.4.3 3.4.9"/><path d="M18 8v6M15 11h6"/></svg>',
+  '/ke-ti':
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6l-4.6 8a2 2 0 0 0 1.8 3h9.6a2 2 0 0 0 1.8-3L14 9V3"/><path d="M7.4 15h9.2"/></svg>',
+  '/notices':
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg>',
+};
+const icon = ICONS[href] || ICONS['/notices'];
 ---
 
-<a class="mod" href={href}>
-  <div class="ico">{icon}</div>
-  <h4>{title}</h4>
-  <p>{desc}</p>
-  <span class="btn">{btn}</span>
+<a class="svc" href={href}>
+  <span class="ico" set:html={icon} />
+  <div>
+    <h4>{title}</h4>
+    <p>{desc}</p>
+    <span class="go">{btn}</span>
+  </div>
 </a>

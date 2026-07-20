@@ -36,9 +36,14 @@ const notices = (await getCollection('notices'))
     <div class="wrap">
       <span class="tag">产学研 · 智能赋能</span>
       <h2>汇聚企业需求，链接学会专家</h2>
+      <div class="accent"></div>
       <p>
         企业工作委员会致力于搭建福建省人工智能领域「企业—高校—科研」协同桥梁，提供需求对接、专家登记、入会申请、课题申报与活动交流一站式服务。
       </p>
+      <div class="actions">
+        <a class="btn-primary" href="#modules">进入服务大厅</a>
+        <a class="btn-ghost" href="/gong-wei-jian-jie">工委简介</a>
+      </div>
     </div>
   </section>
 
@@ -47,18 +52,18 @@ const notices = (await getCollection('notices'))
       <div class="sec-title">
         <span class="bar"></span>
         <h3>活动精选</h3>
-        <span class="more"><a href="/gong-wei-jian-jie">工委简介 ›</a></span>
+        <span class="more"><a href="/notices">更多通知 ›</a></span>
       </div>
       <Gallery slides={slides} />
     </section>
 
-    <section class="section" id="modules">
+    <section class="section alt" id="modules">
       <div class="sec-title">
         <span class="bar"></span>
         <h3>服务大厅</h3>
-        <span class="more">五大核心服务 →</span>
+        <span class="more">五大核心服务</span>
       </div>
-      <div class="grid">
+      <div class="svc-grid">
         {modules.map((m) => <ModuleCard {...m} />)}
       </div>
     </section>
