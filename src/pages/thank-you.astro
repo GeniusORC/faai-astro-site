@@ -1,26 +1,37 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-const sp = Astro.url.searchParams;
-const form = sp.get('form');
-const status = sp.get('status');
-const ok = status === 'ok';
-const map = { expert: '专家登记', member: '入会申请', project: '课题申请' };
-const name = form ? (map[form] || '申请') : '申请';
 ---
-<BaseLayout title={ok ? '提交成功' : '提交结果'}>
+<BaseLayout title="提交结果">
   <div class="wrap" style="text-align:center;padding:60px 20px">
     <div class="crumbs"><a href="/">首页</a> › 提交结果</div>
-    {ok ? (
-      <div>
-        <h1>提交成功</h1>
-        <p>您的{name}已收到，企工委工作人员将尽快与您联系。</p>
-      </div>
-    ) : (
-      <div>
-        <h1>提交未成功</h1>
-        <p>请返回重试，或直接联系企工委工作人员。</p>
-      </div>
-    )}
+    <div id="result-box">
+      <h1 id="result-title">提交结果</h1>
+      <p id="result-msg">正在确认提交状态…</p>
+    </div>
     <a class="btn-submit" href="/" style="display:inline-block;margin-top:20px">返回首页</a>
   </div>
 </BaseLayout>
+
+<script>
+  (function () {
+    const sp = new URLSearchParams(window.location.search);
+    const form = sp.get('form');
+    const status = sp.get('status');
+    const ok = status === 'ok';
+    const map = { expert: '专家登记', member: '入会申请', project: '课题申请' };
+    const name = form ? (map[form] || '申请') : '申请';
+    const titleEl = document.getElementById('result-title');
+    const msgEl = document.getElementById('result-msg');
+    if (ok) {
+      titleEl.textContent = '提交成功';
+      msgEl.textContent = '您的' + name + '已收到，企工委工作人员将尽快与您联系。';
+      document.title = '提交成功';
+    } else if (status === 'spam') {
+      titleEl.textContent = '提交未成功';
+      msgEl.textContent = '检测到异常提交，请返回重试，或直接联系企工委工作人员。';
+    } else {
+      titleEl.textContent = '提交未成功';
+      msgEl.textContent = '请返回重试，或直接联系企工委工作人员。';
+    }
+  })();
+</script>

@@ -41,18 +41,19 @@ const { title, hint, fields, formKey, endpoint = SITE.formEndpoint, surveyUrl } 
 
         {fields.map((f) => (
           <div class="field">
-            <label>
+            <label for={`f-${f.name}`}>
               {f.label}{f.required && <span class="req"> *</span>}
             </label>
             {f.type === 'textarea' ? (
-              <textarea name={f.name} placeholder={f.placeholder} required={f.required}></textarea>
+              <textarea id={`f-${f.name}`} name={f.name} placeholder={f.placeholder} required={f.required}></textarea>
             ) : f.type === 'select' ? (
-              <select name={f.name} required={f.required}>
+              <select id={`f-${f.name}`} name={f.name} required={f.required}>
                 <option value="">请选择</option>
                 {f.options?.map((o) => <option value={o}>{o}</option>)}
               </select>
             ) : (
               <input
+                id={`f-${f.name}`}
                 type={f.type ?? 'text'}
                 name={f.name}
                 placeholder={f.placeholder}
@@ -67,4 +68,14 @@ const { title, hint, fields, formKey, endpoint = SITE.formEndpoint, surveyUrl } 
       </form>
     )}
   </div>
+
+  <script>
+    const formEl = document.querySelector('form.form-card');
+    if (formEl) {
+      formEl.addEventListener('submit', () => {
+        const btn = formEl.querySelector('button[type="submit"]');
+        if (btn) { btn.disabled = true; btn.textContent = '提交中…'; }
+      });
+    }
+  </script>
 </BaseLayout>

@@ -112,7 +112,7 @@ img { max-width: 100%; display: block; }
   letter-spacing: .5px;
 }
 .hero .accent { width: 52px; height: 4px; background: var(--red); border-radius: 2px; margin: 0 0 20px; }
-.hero h2 { font-size: 40px; margin: 0 0 16px; line-height: 1.3; font-weight: 800; letter-spacing: .5px; }
+.hero h1, .hero h2 { font-size: 40px; margin: 0 0 16px; line-height: 1.3; font-weight: 800; letter-spacing: .5px; }
 .hero p { margin: 0; max-width: 740px; color: #d6e2f4; font-size: 17px; line-height: 1.85; }
 .hero .actions { margin-top: 26px; display: flex; gap: 12px; flex-wrap: wrap; }
 .btn-primary {
