@@ -1,0 +1,19 @@
+---
+import Form from '../components/Form.astro';
+
+const fields = [
+  { name: 'org', label: '企业 / 个人名称', required: true },
+  { name: 'type', label: '会员类型', type: 'select', required: true, options: ['企业会员', '个人会员', '团体会员'] },
+  { name: 'contact', label: '联系人', required: true },
+  { name: 'phone', label: '联系电话', type: 'tel', required: true },
+  { name: 'email', label: '电子邮箱', type: 'email', required: true },
+  { name: 'business', label: '主营业务 / 研究方向', type: 'textarea', placeholder: '请简要介绍企业或个人的主营业务与 AI 相关方向' },
+];
+---
+
+<Form
+  title="入会申请"
+  hint="企业 / 个人会员在线申请，审核通过即享企工委各项权益与服务。"
+  fields={fields}
+  formKey="member"
+/>

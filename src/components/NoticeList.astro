@@ -1,0 +1,24 @@
+---
+interface Item {
+  title: string;
+  date: Date;
+  category: string;
+  permalink: string;
+}
+const { items } = Astro.props as { items: Item[] };
+const fmt = (d: Date) => d.toISOString().slice(0, 10);
+---
+
+{items.length === 0 ? (
+  <div class="note">暂无通知，敬请关注。</div>
+) : (
+  <ul class="notice">
+    {items.map((n) => (
+      <li>
+        <span class="date">{fmt(n.date)}</span>
+        <span class="badge act">{n.category}</span>
+        <a class="ttl" href={n.permalink}>{n.title}</a>
+      </li>
+    ))}
+  </ul>
+)}

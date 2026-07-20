@@ -1,0 +1,17 @@
+---
+interface Props {
+  href: string;
+  icon: string;
+  title: string;
+  desc: string;
+  btn: string;
+}
+const { href, icon, title, desc, btn } = Astro.props;
+---
+
+<a class="mod" href={href}>
+  <div class="ico">{icon}</div>
+  <h4>{title}</h4>
+  <p>{desc}</p>
+  <span class="btn">{btn}</span>
+</a>

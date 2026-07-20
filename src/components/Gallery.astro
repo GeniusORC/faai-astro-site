@@ -1,0 +1,20 @@
+---
+interface Slide {
+  img: string;
+  title: string;
+  sub: string;
+}
+const { slides } = Astro.props as { slides: Slide[] };
+---
+
+<div class="gallery">
+  {slides.map((s) => (
+    <div class="slide">
+      <img src={s.img} alt={s.title} loading="lazy" />
+      <div class="cap">
+        <b>{s.title}</b>
+        <span>{s.sub}</span>
+      </div>
+    </div>
+  ))}
+</div>

@@ -1,0 +1,30 @@
+# Decap CMS 配置（企工委官网）
+# 改文件：把 REPO_OWNER / REPO_NAME 换成你的 GitHub 仓库，详见 SETUP.md
+backend:
+  name: github
+  repo: REPO_OWNER/REPO_NAME          # 例如 chenjianbo/faai-astro-site
+  branch: main
+  auth_type: pkce                     # 免密钥，配合 GitHub OAuth App 使用
+
+# 本地预览（可选）：先跑 `npx decap-server`，再把下面一行取消注释
+# local_backend: true
+
+media_folder: "public/assets/uploads"   # 图片存到这里，自动进 Git
+public_folder: "/assets/uploads"
+
+# 发布的内容集合
+collections:
+  - name: "notices"
+    label: "活动通知"
+    label_singular: "活动通知"
+    folder: "src/content/notices"
+    create: true
+    slug: "{{slug}}"
+    path: "{{slug}}.md"
+    fields:
+      - { label: "标题", name: "title", widget: "string", required: true }
+      - { label: "发布日期", name: "date", widget: "datetime", required: true }
+      - { label: "摘要", name: "excerpt", widget: "string" }
+      - { label: "标签", name: "tags", widget: "list", field: { label: "标签", name: "tag", widget: "string" }, default: [] }
+      - { label: "封面图", name: "cover", widget: "image" }
+      - { label: "正文", name: "body", widget: "markdown", required: true }

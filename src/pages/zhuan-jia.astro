@@ -1,0 +1,20 @@
+---
+import Form from '../components/Form.astro';
+
+const fields = [
+  { name: 'name', label: '姓名', required: true, placeholder: '请输入真实姓名' },
+  { name: 'title', label: '职称 / 职务', required: true },
+  { name: 'org', label: '所在高校 / 科研机构', required: true },
+  { name: 'field', label: '研究方向', type: 'select', required: true, options: ['大数据与人工智能', '智能机器人 / 具身智能', '智慧康养与医疗 AI', '工业智能与智能制造', '其他'] },
+  { name: 'phone', label: '联系电话', type: 'tel', required: true },
+  { name: 'email', label: '电子邮箱', type: 'email', required: true },
+  { name: 'achievement', label: '主要成果 / 简介', type: 'textarea', placeholder: '简要介绍研究方向与代表性成果' },
+];
+---
+
+<Form
+  title="学会专家登记表"
+  hint="欢迎高校与科研机构专家学者登记入库，共建产学研协同智库。"
+  fields={fields}
+  formKey="expert"
+/>

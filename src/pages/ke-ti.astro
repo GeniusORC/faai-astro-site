@@ -1,0 +1,19 @@
+---
+import Form from '../components/Form.astro';
+
+const fields = [
+  { name: 'title', label: '课题名称', required: true },
+  { name: 'lead', label: '申报单位 / 负责人', required: true },
+  { name: 'type', label: '课题类型', type: 'select', required: true, options: ['联合攻关', '企业委托', '学生课题', '开放课题'] },
+  { name: 'phone', label: '联系电话', type: 'tel', required: true },
+  { name: 'email', label: '电子邮箱', type: 'email', required: true },
+  { name: 'abstract', label: '课题摘要', type: 'textarea', placeholder: '请简述研究背景、目标、技术路线与预期成果' },
+];
+---
+
+<Form
+  title="课题申请"
+  hint="联合攻关课题在线申报，学会将组织专家评审与立项。"
+  fields={fields}
+  formKey="project"
+/>

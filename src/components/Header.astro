@@ -1,0 +1,18 @@
+---
+import { NAV, SITE } from '../site';
+---
+
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="/">
+      <span class="logo">AI</span>
+      <span class="name">{SITE.short}<small>企业工作委员会</small></span>
+    </a>
+    <details class="nav-toggle">
+      <summary>菜单</summary>
+      <nav class="nav">
+        {NAV.map((item) => <a href={item.href}>{item.label}</a>)}
+      </nav>
+    </details>
+  </div>
+</header>
