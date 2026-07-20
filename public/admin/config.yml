@@ -65,3 +65,35 @@ collections:
       - { label: "头像", name: "avatar", widget: "image", required: false }
       - { label: "排序", name: "order", widget: "number", default: 0, value_type: "int", required: false }
       - { label: "简介", name: "body", widget: "markdown", required: false }
+
+  - name: "members"
+    label: "会员名录"
+    label_singular: "会员单位"
+    folder: "src/content/members"
+    create: true
+    slug: "{{slug}}"
+    path: "{{slug}}.md"
+    fields:
+      - { label: "单位 / 个人名称", name: "org", widget: "string", required: true }
+      - { label: "会员类型", name: "type", widget: "select", options: ["企业会员", "个人会员", "团体会员"], default: "企业会员" }
+      - { label: "联系人", name: "contact", widget: "string", required: false }
+      - { label: "联系电话", name: "phone", widget: "string", required: false }
+      - { label: "电子邮箱", name: "email", widget: "string", required: false }
+      - { label: "主营业务 / 研究方向", name: "business", widget: "text", required: false }
+      - { label: "排序", name: "order", widget: "number", default: 0, value_type: "int", required: false }
+
+  - name: "projects"
+    label: "课题立项"
+    label_singular: "课题"
+    folder: "src/content/projects"
+    create: true
+    slug: "{{slug}}"
+    path: "{{slug}}.md"
+    fields:
+      - { label: "课题名称", name: "title", widget: "string", required: true }
+      - { label: "申报单位 / 负责人", name: "lead", widget: "string", required: true }
+      - { label: "课题类型", name: "type", widget: "select", options: ["联合攻关", "企业委托", "学生课题", "开放课题"], default: "联合攻关" }
+      - { label: "联系电话", name: "phone", widget: "string", required: false }
+      - { label: "电子邮箱", name: "email", widget: "string", required: false }
+      - { label: "课题摘要", name: "abstract", widget: "text", required: false }
+      - { label: "排序", name: "order", widget: "number", default: 0, value_type: "int", required: false }

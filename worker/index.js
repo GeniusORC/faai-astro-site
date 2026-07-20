@@ -37,6 +37,21 @@ export default {
       });
     }
 
+    // 审核后台（需 admin token）：列表 / 详情 / 通过 / 拒绝
+    if (url.pathname === '/review' && request.method === 'GET') {
+      const admin = url.searchParams.get('admin');
+      if (admin !== env.ADMIN_TOKEN) return new Response('Forbidden', { status: 403 });
+      const key = url.searchParams.get('key');
+      if (key) return handleReviewItem(env, key, admin);
+      return handleReviewList(env, admin, url.searchParams.get('msg'));
+    }
+    if ((url.pathname === '/review/approve' || url.pathname === '/review/reject') && request.method === 'POST') {
+      const admin = (await request.formData()).get('admin');
+      if (admin !== env.ADMIN_TOKEN) return new Response('Forbidden', { status: 403 });
+      const status = url.pathname.endsWith('/approve') ? 'approved' : 'rejected';
+      return handleReviewAction(request, env, status);
+    }
+
     // 接收表单提交（原生 form POST，无需 JS，微信友好）
     if (url.pathname === '/submit' && request.method === 'POST') {
       let form;
@@ -252,4 +267,183 @@ function renderTable(rows) {
     body +
     '</tbody></table></body></html>'
   );
+}
+
+// ---------- 审核后台辅助 ----------
+
+function b64encode(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  bytes.forEach((b) => (bin += String.fromCharCode(b)));
+  return btoa(bin);
+}
+
+function fmEscape(s) {
+  return String(s == null ? '' : s).replace(/"/g, '\\"');
+}
+
+function buildMarkdown(formKey, d) {
+  const line = (k, v) => `${k}: "${fmEscape(v)}"`;
+  if (formKey === 'expert') {
+    const fm = [
+      line('name', d.name),
+      line('title', d.title),
+      line('org', d.org),
+      line('field', d.field),
+      line('email', d.email || ''),
+      'order: 0',
+    ].join('\n');
+    return `---\n${fm}\n---\n\n${d.achievement || ''}\n`;
+  }
+  if (formKey === 'member') {
+    const fm = [
+      line('org', d.org),
+      line('type', d.type || '企业会员'),
+      line('contact', d.contact || ''),
+      line('phone', d.phone || ''),
+      line('email', d.email || ''),
+      'order: 0',
+    ].join('\n');
+    return `---\n${fm}\n---\n\n${d.business || ''}\n`;
+  }
+  if (formKey === 'project') {
+    const fm = [
+      line('title', d.title),
+      line('lead', d.lead),
+      line('type', d.type || '联合攻关'),
+      line('phone', d.phone || ''),
+      line('email', d.email || ''),
+      'order: 0',
+    ].join('\n');
+    return `---\n${fm}\n---\n\n${d.abstract || ''}\n`;
+  }
+  return '';
+}
+
+async function githubPut(env, path, content, message) {
+  if (!env.GITHUB_API_TOKEN) return { ok: false, err: 'GITHUB_API_TOKEN 未配置' };
+  const repo = 'GeniusORC/faai-astro-site';
+  const url = `https://api.github.com/repos/${repo}/contents/${path}`;
+  const headers = {
+    Authorization: `Bearer ${env.GITHUB_API_TOKEN}`,
+    Accept: 'application/vnd.github+json',
+    'User-Agent': 'faai-review',
+    'Content-Type': 'application/json',
+  };
+  let sha;
+  const getRes = await fetch(url, { headers });
+  if (getRes.ok) sha = (await getRes.json()).sha;
+  const body = { message, content: b64encode(content) };
+  if (sha) body.sha = sha;
+  const putRes = await fetch(url, { method: 'PUT', headers, body: JSON.stringify(body) });
+  return { ok: putRes.ok, status: putRes.status };
+}
+
+function redirectReview(admin, msg) {
+  const loc = `/review?admin=${encodeURIComponent(admin)}` + (msg ? `&msg=${encodeURIComponent(msg)}` : '');
+  return new Response(null, { status: 302, headers: { Location: loc, 'Cache-Control': 'no-store' } });
+}
+
+const TYPE_LABEL = { expert: '专家登记', member: '入会申请', project: '课题申请' };
+const FOLDER = { expert: 'experts', member: 'members', project: 'projects' };
+
+function reviewShell(admin, inner, msg) {
+  const banner = msg ? `<div class="banner">${esc(msg)}</div>` : '';
+  return '<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><title>申请审核后台</title>' +
+    '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+    '<style>body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;' +
+    'margin:0;background:#f4f7fb;color:#1f2430;padding:24px}' +
+    '.wrap{max-width:960px;margin:0 auto}' +
+    'h1{font-size:20px;color:#1a3a6e;margin:0 0 4px}' +
+    '.sub{color:#5b6577;font-size:13px;margin-bottom:18px}' +
+    '.banner{background:#e6f4ea;color:#1a7f37;border:1px solid #b7e0c2;padding:10px 14px;border-radius:8px;margin-bottom:16px;font-size:14px}' +
+    '.cols{display:grid;grid-template-columns:1fr;gap:18px}' +
+    '@media(min-width:720px){.cols{grid-template-columns:1fr 1fr 1fr}}' +
+    '.col{background:#fff;border:1px solid #e7ebf1;border-radius:10px;padding:14px}' +
+    '.col h2{font-size:15px;margin:0 0 10px;color:#1a3a6e;border-bottom:3px solid #c8102e;padding-bottom:8px;display:inline-block}' +
+    '.item{border-top:1px solid #eef1f5;padding:10px 0}' +
+    '.item:first-of-type{border-top:0}' +
+    '.item .t{font-weight:600;font-size:14px}' +
+    '.item .m{color:#5b6577;font-size:12px;margin:2px 0 6px}' +
+    'a.btn{display:inline-block;font-size:13px;color:#1a3a6e;font-weight:600;text-decoration:none}' +
+    '.empty{color:#9aa3b2;font-size:13px}' +
+    'table{width:100%;border-collapse:collapse;background:#fff}' +
+    'th,td{border:1px solid #e7ebf1;padding:9px 11px;text-align:left;vertical-align:top;font-size:13px}' +
+    'th{background:#1a3a6e;color:#fff;width:120px}' +
+    '.acts{margin-top:18px;display:flex;gap:12px}' +
+    '.acts button{padding:11px 22px;border:0;border-radius:8px;font-size:15px;cursor:pointer;font-weight:600}' +
+    '.ok{background:#1a7f37;color:#fff}' +
+    '.no{background:#c8102e;color:#fff}' +
+    'a.back{display:inline-block;margin-bottom:14px;color:#1a3a6e;font-size:13px;text-decoration:none}</style>' +
+    '</head><body><div class="wrap">' + banner + inner + '</div></body></html>';
+}
+
+async function handleReviewList(env, admin, msg) {
+  const list = await env.FORM_SUBMISSIONS.list();
+  const all = [];
+  for (const k of list.keys) {
+    const raw = await env.FORM_SUBMISSIONS.get(k.name);
+    try { const d = JSON.parse(raw); d.__key = k.name; all.push(d); } catch {}
+  }
+  const pending = all.filter((d) => d.status !== 'approved' && d.status !== 'rejected');
+  const groups = { expert: [], member: [], project: [] };
+  for (const d of pending) if (groups[d._form]) groups[d._form].push(d);
+
+  const col = (key) => {
+    const items = groups[key];
+    const body = items.length
+      ? items.map((d) => {
+          const title = d.name || d.org || d.title || '(未命名)';
+          const meta = (d._submittedAt || '').slice(0, 16).replace('T', ' ');
+          return `<div class="item"><div class="t">${esc(title)}</div>` +
+            `<div class="m">${esc(meta)}</div>` +
+            `<a class="btn" href="/review?admin=${encodeURIComponent(admin)}&key=${encodeURIComponent(d.__key)}">查看 / 审核 ›</a></div>`;
+        }).join('')
+      : '<div class="empty">暂无待审</div>';
+    return `<div class="col"><h2>${TYPE_LABEL[key]}</h2>${body}</div>`;
+  };
+
+  const inner = `<h1>申请审核后台</h1><div class="sub">企工委官网 · 待审申请（通过后将自动发布到对应名录）</div>` +
+    `<div class="cols">${col('expert')}${col('member')}${col('project')}</div>`;
+  return new Response(reviewShell(admin, inner, msg), { headers: { 'content-type': 'text/html; charset=utf-8' } });
+}
+
+async function handleReviewItem(env, key, admin) {
+  const raw = await env.FORM_SUBMISSIONS.get(key);
+  if (!raw) return new Response(reviewShell(admin, '<h1>申请审核后台</h1><div class="sub">记录不存在</div>'), { headers: { 'content-type': 'text/html; charset=utf-8' } });
+  const d = JSON.parse(raw);
+  const rows = Object.entries(d)
+    .filter(([k]) => !k.startsWith('_') && k !== '__key')
+    .map(([k, v]) => `<tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`)
+    .join('');
+  const inner = `<a class="back" href="/review?admin=${encodeURIComponent(admin)}">‹ 返回列表</a>` +
+    `<h1>${TYPE_LABEL[d._form] || '申请'} · 详情</h1>` +
+    `<div class="sub">提交时间：${esc((d._submittedAt || '').replace('T', ' '))}</div>` +
+    `<table>${rows}</table>` +
+    `<div class="acts">` +
+    `<form method="POST" action="/review/approve"><input type="hidden" name="key" value="${esc(key)}"><input type="hidden" name="admin" value="${esc(admin)}"><button class="ok" type="submit">通过并发布</button></form>` +
+    `<form method="POST" action="/review/reject"><input type="hidden" name="key" value="${esc(key)}"><input type="hidden" name="admin" value="${esc(admin)}"><button class="no" type="submit">拒绝</button></form>` +
+    `</div>`;
+  return new Response(reviewShell(admin, inner, ''), { headers: { 'content-type': 'text/html; charset=utf-8' } });
+}
+
+async function handleReviewAction(request, env, status) {
+  const form = await request.formData();
+  const key = form.get('key');
+  const admin = form.get('admin');
+  const raw = await env.FORM_SUBMISSIONS.get(key);
+  if (!raw) return redirectReview(admin, '记录不存在');
+  const d = JSON.parse(raw);
+  if (status === 'approved') {
+    const md = buildMarkdown(d._form, d);
+    if (!md) return redirectReview(admin, '未知申请类型');
+    const slug = `${d._form}-${Date.now()}`;
+    const path = `src/content/${FOLDER[d._form]}/${slug}.md`;
+    const gh = await githubPut(env, path, md, `审核通过：${TYPE_LABEL[d._form] || d._form} ${key}`);
+    if (!gh.ok) return redirectReview(admin, 'GitHub 写入失败：' + (gh.err || ('HTTP ' + gh.status)));
+  }
+  d.status = status;
+  d._reviewedAt = new Date().toISOString();
+  await env.FORM_SUBMISSIONS.put(key, JSON.stringify(d, null, 2));
+  return redirectReview(admin, status === 'approved' ? '已通过并发布到官网' : '已拒绝（保留备查）');
 }

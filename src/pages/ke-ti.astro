@@ -1,5 +1,10 @@
 ---
-import Form from '../components/Form.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { SITE } from '../site';
+
+const projects = (await getCollection('projects'))
+  .sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0));
 
 const fields = [
   { name: 'title', label: '课题名称', required: true },
@@ -11,9 +16,74 @@ const fields = [
 ];
 ---
 
-<Form
-  title="课题申请"
-  hint="联合攻关课题在线申报，学会将组织专家评审与立项。"
-  fields={fields}
-  formKey="project"
-/>
+<BaseLayout title="课题申请 | 福建省人工智能学会企业工作委员会">
+  <div class="wrap">
+    <div class="crumbs"><a href="/">首页</a> › 课题申请</div>
+
+    <article class="page">
+      <h1>课题立项</h1>
+      <p class="lead">学会组织专家对联合攻关、企业委托等课题进行评审与立项，推动产学研协同落地。</p>
+
+      <h2>立项展示</h2>
+      {projects.length === 0 ? (
+        <p>暂无立项课题，敬请期待。</p>
+      ) : (
+        <div class="roster-grid">
+          {projects.map((p) => (
+            <div class="roster-card">
+              <div class="roster-name">{p.data.title}</div>
+              <div class="roster-tag">{p.data.type}</div>
+              <div class="roster-meta">负责人 / 单位：{p.data.lead}</div>
+              {p.data.abstract && <div class="roster-desc">{p.data.abstract}</div>}
+              {p.data.email && <div class="roster-link"><a href={`mailto:${p.data.email}`}>{p.data.email}</a></div>}
+            </div>
+          ))}
+        </div>
+      )}
+    </article>
+
+    <form class="form-card" action={SITE.formEndpoint} method="POST">
+      <h2>课题申报</h2>
+      <p class="hint">联合攻关课题在线申报，学会将组织专家评审与立项。</p>
+      <input type="hidden" name="_form" value="project" />
+      <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px" />
+
+      {fields.map((f) => (
+        <div class="field">
+          <label for={`f-${f.name}`}>
+            {f.label}{f.required && <span class="req"> *</span>}
+          </label>
+          {f.type === 'textarea' ? (
+            <textarea id={`f-${f.name}`} name={f.name} placeholder={f.placeholder} required={f.required}></textarea>
+          ) : f.type === 'select' ? (
+            <select id={`f-${f.name}`} name={f.name} required={f.required}>
+              <option value="">请选择</option>
+              {f.options?.map((o) => <option value={o}>{o}</option>)}
+            </select>
+          ) : (
+            <input
+              id={`f-${f.name}`}
+              type={f.type ?? 'text'}
+              name={f.name}
+              placeholder={f.placeholder}
+              required={f.required}
+            />
+          )}
+        </div>
+      ))}
+
+      <button class="btn-submit" type="submit">提交申报</button>
+      <div class="note">提交后将由企工委工作人员与您联系。表单由本站免费自托管后端（Cloudflare Worker）接收，数据存于你自己的 Cloudflare 账户，无任何第三方收费。</div>
+    </form>
+  </div>
+
+  <script>
+    const formEl = document.querySelector('form.form-card');
+    if (formEl) {
+      formEl.addEventListener('submit', () => {
+        const btn = formEl.querySelector('button[type="submit"]');
+        if (btn) { btn.disabled = true; btn.textContent = '提交中…'; }
+      });
+    }
+  </script>
+</BaseLayout>
