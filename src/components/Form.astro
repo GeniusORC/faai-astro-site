@@ -16,45 +16,55 @@ interface Props {
   fields: Field[];
   formKey: string;
   endpoint?: string;
+  surveyUrl?: string;
 }
-const { title, hint, fields, formKey, endpoint = SITE.formEndpoint } = Astro.props;
+const { title, hint, fields, formKey, endpoint = SITE.formEndpoint, surveyUrl } = Astro.props;
 ---
-
 <BaseLayout title={`${title} | 福建省人工智能学会企业工作委员会`}>
   <div class="wrap">
     <div class="crumbs"><a href="/">首页</a> › {title}</div>
-    <form class="form-card" action={endpoint} method="POST">
-      <h1>{title}</h1>
-      <p class="hint">{hint}</p>
-      <input type="hidden" name="_form" value={formKey} />
 
-      {fields.map((f) => (
-        <div class="field">
-          <label>
-            {f.label}{f.required && <span class="req"> *</span>}
-          </label>
-          {f.type === 'textarea' ? (
-            <textarea name={f.name} placeholder={f.placeholder} required={f.required}></textarea>
-          ) : f.type === 'select' ? (
-            <select name={f.name} required={f.required}>
-              <option value="">请选择</option>
-              {f.options?.map((o) => <option value={o}>{o}</option>)}
-            </select>
-          ) : (
-            <input
-              type={f.type ?? 'text'}
-              name={f.name}
-              placeholder={f.placeholder}
-              required={f.required}
-            />
-          )}
-        </div>
-      ))}
-
-      <button class="btn-submit" type="submit">提交申请</button>
-      <div class="note">
-        提交后将由企工委工作人员与您联系。表单接收端当前为占位地址，部署前请在 <code>src/site.ts</code> 中配置真实表单服务（Formspree / Getform / 腾讯问卷 / Cloudflare Worker 等）。
+    {surveyUrl ? (
+      <div class="form-card">
+        <h1>{title}</h1>
+        <p class="hint">{hint}</p>
+        <p>请在腾讯问卷中填写并提交：</p>
+        <a class="btn-submit" href={surveyUrl} target="_blank" rel="noopener">点击前往填写（腾讯问卷）</a>
+        <div class="note">提交后将由企工委工作人员与您联系。本表单由腾讯问卷免费档承接，数据存于你的腾讯问卷后台。</div>
       </div>
-    </form>
+    ) : (
+      <form class="form-card" action={endpoint} method="POST">
+        <h1>{title}</h1>
+        <p class="hint">{hint}</p>
+        <input type="hidden" name="_form" value={formKey} />
+        <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px" />
+
+        {fields.map((f) => (
+          <div class="field">
+            <label>
+              {f.label}{f.required && <span class="req"> *</span>}
+            </label>
+            {f.type === 'textarea' ? (
+              <textarea name={f.name} placeholder={f.placeholder} required={f.required}></textarea>
+            ) : f.type === 'select' ? (
+              <select name={f.name} required={f.required}>
+                <option value="">请选择</option>
+                {f.options?.map((o) => <option value={o}>{o}</option>)}
+              </select>
+            ) : (
+              <input
+                type={f.type ?? 'text'}
+                name={f.name}
+                placeholder={f.placeholder}
+                required={f.required}
+              />
+            )}
+          </div>
+        ))}
+
+        <button class="btn-submit" type="submit">提交申请</button>
+        <div class="note">提交后将由企工委工作人员与您联系。表单由本站免费自托管后端（Cloudflare Worker）接收，数据存于你自己的 Cloudflare 账户，无任何第三方收费。</div>
+      </form>
+    )}
   </div>
 </BaseLayout>

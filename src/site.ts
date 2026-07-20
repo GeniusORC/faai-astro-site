@@ -3,8 +3,10 @@ export const SITE = {
   title: '福建省人工智能学会企业工作委员会',
   short: 'AI 企工委',
   desc: '汇聚企业需求，链接学会专家。提供需求对接、专家登记、入会申请、课题申报与活动交流一站式服务。',
-  // TODO: 部署前替换为真实表单接收端（Formspree / Getform / 腾讯问卷 / Cloudflare Worker 等）
-  formEndpoint: 'https://formspree.io/f/your-form-id',
+  // 免费自托管表单后端：Cloudflare Worker（*.workers.dev 子域，免购域名）
+  // 部署见 worker/ 目录与 SETUP.md「表单免费自托管」一节。
+  // 也支持腾讯问卷免费档（见 SETUP.md 零代码备选）：在对应页面传 surveyUrl 即可。
+  formEndpoint: 'https://faai-forms.YOUR_SUBDOMAIN.workers.dev/submit',
 };
 
 export const NAV = [

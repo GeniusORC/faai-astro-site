@@ -2,9 +2,10 @@
 # 改文件：把 REPO_OWNER / REPO_NAME 换成你的 GitHub 仓库，详见 SETUP.md
 backend:
   name: github
-  repo: REPO_OWNER/REPO_NAME          # 例如 chenjianbo/faai-astro-site
+  repo: GeniusORC/faai-astro-site
   branch: main
   auth_type: pkce                     # 免密钥，配合 GitHub OAuth App 使用
+  client_id: 你的OAuthApp_ClientID    # 建好 GitHub OAuth App 后，把 Client ID 填到这里
 
 # 本地预览（可选）：先跑 `npx decap-server`，再把下面一行取消注释
 # local_backend: true

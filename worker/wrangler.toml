@@ -1,0 +1,13 @@
+name = "faai-forms"
+main = "index.js"
+compatibility_date = "2024-09-01"
+
+# 查看提交记录的口令（建议改用 `wrangler secret put ADMIN_TOKEN` 存为密钥，更安全）
+[vars]
+ADMIN_TOKEN = "change-me-strong-token"
+SITE_URL = "https://faai.pages.dev"
+
+# KV 命名空间：先运行 `wrangler kv namespace create FORM_SUBMISSIONS` 拿到 id 填到下面
+[[kv_namespaces]]
+binding = "FORM_SUBMISSIONS"
+id = "REPLACE_WITH_YOUR_KV_ID"

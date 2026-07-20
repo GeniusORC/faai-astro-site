@@ -10,12 +10,8 @@
 
 ## 一、你要在网页上点几下的事（我无法代登你的私人账号）
 
-### 1. 建 GitHub 仓库
-- 用 `450311590@qq.com` 登录 https://github.com → 右上角 **New repository**
-- Repository name：`faai-astro-site`（随意）
-- 选 **Public**（Decap 用 pkce 可免密，公开仓库即可）
-- 不要勾选 "Add a README"（本地已有代码）
-- 点 **Create repository**
+### 1. 建 GitHub 仓库（你已完成）
+- 仓库已建好：`https://github.com/GeniusORC/faai-astro-site.git`（Public）
 
 ### 2. 建 GitHub OAuth App（Decap 登录用）
 - GitHub → 右上角头像 → **Settings** → 左侧 **Developer settings** → **OAuth Apps** → **New OAuth App**
@@ -23,7 +19,8 @@
 - Homepage URL：你的上线域名，例如 `https://faai.pages.dev`
 - Authorization callback URL：**`https://你的域名/admin/`**（结尾斜杠不能少）
 - 点 **Register application**
-- 记下 **Client ID**（pkce 模式不需要 Client Secret）
+- 记下 **Client ID** → 打开 `public/admin/config.yml`，把 `client_id: 你的OAuthApp_ClientID` 改成真实的 Client ID
+- （pkce 模式不需要 Client Secret，无需填写）
 
 ### 3. 连托管平台（Cloudflare Pages 为例）
 - 登录 https://pages.cloudflare.com → **Connect to Git** → 选刚建的仓库
@@ -36,11 +33,12 @@
 
 ## 二、改一处配置（本地改完提交即可）
 
-打开 `public/admin/config.yml`，把第一行仓库改成真实值：
+打开 `public/admin/config.yml`，确认仓库已是 `repo: GeniusORC/faai-astro-site`，并把 `client_id` 改成你刚建的 OAuth App 的 Client ID：
 
 ```yaml
 backend:
-  repo: REPO_OWNER/REPO_NAME   # 改成例如 chenjianbo/faai-astro-site
+  repo: GeniusORC/faai-astro-site
+  client_id: 你的OAuthApp_ClientID   # 改成真实的 Client ID
 ```
 
 然后回到上面「步骤 2」把 OAuth App 的 Homepage / Callback 改成你最终域名。
@@ -53,7 +51,7 @@ backend:
 
 ```bash
 cd astro-site
-git remote add origin https://github.com/REPO_OWNER/REPO_NAME.git
+git remote add origin https://github.com/GeniusORC/faai-astro-site.git
 git branch -M main
 git push -u origin main
 ```
@@ -69,13 +67,23 @@ Decap 会把 Markdown 写回仓库，Cloudflare 自动重新构建，**几分钟
 
 ---
 
-## 五、表单免费方案（避免 Formspree 付费）
+## 五、表单免费自托管（Cloudflare Worker + KV，推荐）
 
-三个申请表单目前 POST 到占位地址（`src/site.ts` 的 `formEndpoint`）。免费替代：
+已默认接好：三个申请表单 POST 到 `src/site.ts` 的 `formEndpoint`（你的 Cloudflare Worker），由 Worker 把数据存进你自己的 Cloudflare KV，**无任何第三方、无订阅费**。查看记录：`https://<worker>.workers.dev/submissions?admin=<ADMIN_TOKEN>`。
 
-1. **腾讯问卷（免费档）**：建好问卷 → 复制链接 → 把对应页面里 `<Form>` 换成链接按钮（最简单，零代码）。
-2. **Cloudflare Worker + KV（免费）**：写一个接收 POST 的 Worker，把 `formEndpoint` 指向它（适合想保留站内表单样式）。
-3. 接好后，**非技术委员在 Decap 里改不了表单地址**——表单地址仍由代码（`src/site.ts`）管理，或由你用 AI 改。
+部署步骤（在 astro-site 目录）：
+
+1. 安装并登录 wrangler：`npm i -g wrangler` → `wrangler login`
+2. 建 KV 命名空间：`wrangler kv namespace create FORM_SUBMISSIONS`，把返回的 id 填进 `worker/wrangler.toml` 的 `id`
+3. 改 `worker/wrangler.toml`：`SITE_URL` 改成你的 `https://<project>.pages.dev`；`ADMIN_TOKEN` 改成强口令（或 `wrangler secret put ADMIN_TOKEN`）
+4. 部署：`cd worker && wrangler deploy`
+5. 把 `src/site.ts` 的 `formEndpoint` 改成 `https://<worker>.workers.dev/submit`（`<worker>` 即部署后的子域）
+
+### 零代码备选：腾讯问卷免费档
+
+若不想部署 Worker，在 wj.qq.com 建 3 份问卷（专家登记 / 入会申请 / 课题申请），复制链接，然后在对应页面给 `<Form>` 加 `surveyUrl="https://wj.qq.com/..."`（如 `src/pages/zhuan-jia.astro` 的 `<Form ... surveyUrl="..." />`）。页面会自动显示「点击前往填写」按钮，数据存于你的腾讯问卷后台。
+
+> 表单目标由代码管理（`src/site.ts` / 页面 `surveyUrl`），Decap 目前不编辑表单目标。
 
 ---
 
