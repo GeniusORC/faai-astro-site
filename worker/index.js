@@ -43,16 +43,16 @@ export default {
       try {
         form = await request.formData();
       } catch {
-        return redirect(env.SITE_URL + '/thank-you?status=error');
+        return resultPage('error', '', env.SITE_URL);
       }
 
       // 蜜罐：机器人填了隐藏字段则静默丢弃
       if (form.get('_gotcha')) {
-        return redirect(env.SITE_URL + '/thank-you?form=' + (form.get('_form') || '') + '&status=spam');
+        return resultPage('spam', form.get('_form') || '', env.SITE_URL);
       }
       const formKey = form.get('_form');
       if (!['expert', 'member', 'project'].includes(formKey)) {
-        return redirect(env.SITE_URL + '/thank-you?status=error');
+        return resultPage('error', '', env.SITE_URL);
       }
 
       const data = {};
@@ -65,17 +65,51 @@ export default {
       try {
         await env.FORM_SUBMISSIONS.put(key, JSON.stringify(data, null, 2));
       } catch {
-        return redirect(env.SITE_URL + '/thank-you?form=' + formKey + '&status=error');
+        return resultPage('error', formKey, env.SITE_URL);
       }
-      return redirect(env.SITE_URL + '/thank-you?form=' + formKey + '&status=ok');
+      return resultPage('ok', formKey, env.SITE_URL);
     }
 
     return new Response('Not found', { status: 404 });
   },
 };
 
-function redirect(loc) {
-  return new Response(null, { status: 302, headers: { Location: loc } });
+// 同域结果页：避免跨域 302 被浏览器/微信拦截，先在本域渲染结果，再自动跳回官网
+function resultPage(status, formKey, siteUrl) {
+  const ok = status === 'ok';
+  const map = { expert: '专家登记', member: '入会申请', project: '课题申请' };
+  const name = (formKey && map[formKey]) || '申请';
+  const title = ok ? '提交成功' : '提交未成功';
+  const msg = ok
+    ? `您的${name}已收到，企工委工作人员将尽快与您联系。`
+    : '提交未成功，请返回重试，或直接联系企工委工作人员。';
+  const target = `${siteUrl}/thank-you?form=${encodeURIComponent(formKey)}&status=${status}`;
+  return new Response(
+    `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><title>${title}</title>` +
+      `<meta http-equiv="refresh" content="2;url=${target}">` +
+      `<meta name="viewport" content="width=device-width,initial-scale=1">` +
+      `<style>body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;` +
+      `background:#f4f7fb;color:#1f2430;display:flex;min-height:100vh;align-items:center;justify-content:center;` +
+      `text-align:center;margin:0;padding:24px}` +
+      `.box{max-width:420px}.ic{width:56px;height:56px;border-radius:50%;display:inline-grid;place-items:center;` +
+      `font-size:28px;margin-bottom:14px;${ok ? 'background:#e6f4ea;color:#1a7f37' : 'background:#fdecef;color:#c8102e'}}` +
+      `h1{font-size:22px;color:#1a3a6e;margin:0 0 10px}` +
+      `p{margin:6px 0;font-size:15px;line-height:1.7;color:#5b6577}` +
+      `a{display:inline-block;margin-top:16px;color:#1a3a6e;font-weight:600;text-decoration:none}` +
+      `.tip{font-size:13px;margin-top:14px}</style></head><body><div class="box">` +
+      `<div class="ic">${ok ? '✓' : '!'}</div>` +
+      `<h1>${title}</h1><p>${msg}</p>` +
+      `<p class="tip">正在返回官网…</p>` +
+      `<a href="${target}">如未自动跳转，点此返回 ›</a></div></body></html>`,
+    {
+      status: 200,
+      headers: {
+        'content-type': 'text/html; charset=utf-8',
+        'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'no-store',
+      },
+    }
+  );
 }
 
 // --- Decap CMS GitHub OAuth 代理 ---

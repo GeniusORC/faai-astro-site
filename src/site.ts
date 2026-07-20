@@ -11,7 +11,7 @@ export const SITE = {
 
 export const NAV = [
   { href: '/', label: '首页' },
-  { href: '/gong-wei-jian-jie', label: '工委简介' },
+  { href: '/gong-wei-jian-jie', label: '企工委简介' },
   { href: '/xu-qiu-ku', label: '企业需求库' },
   { href: '/zhuan-jia', label: '专家登记' },
   { href: '/ru-hui', label: '入会申请' },
