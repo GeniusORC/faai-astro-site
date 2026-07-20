@@ -1,4 +1,8 @@
-// 企工委官网 · 免费自托管表单后端（Cloudflare Worker + KV）
+// 企工委官网 · 免费自托管后端（Cloudflare Worker + KV），单文件承担三种职责：
+//   1) Decap CMS 的 GitHub OAuth 代理（/auth、/callback）
+//   2) 表单接收与存储（POST /submit → KV；GET /submissions 查看）
+//   3) 申请审核后台（GET /review、POST /review/approve、POST /review/reject）
+//      —— 审核“通过”时自动生成 Markdown 写回 GitHub 对应名录并触发站点重建（需 GITHUB_API_TOKEN）
 // 部署见 worker/wrangler.toml 与 SETUP.md「表单免费自托管」一节。
 // 无任何第三方服务、无订阅费；数据存于你自己的 Cloudflare KV。
 
@@ -70,7 +74,7 @@ export default {
         return resultPage('error', '', env.SITE_URL);
       }
 
-      const data = {};
+      const data = { _form: formKey };
       for (const [k, v] of form.entries()) {
         if (!k.startsWith('_')) data[k] = typeof v === 'string' ? v : '';
       }
@@ -271,6 +275,7 @@ function renderTable(rows) {
 
 // ---------- 审核后台辅助 ----------
 
+// UTF-8 安全的 Base64 编码（GitHub Contents API 的 content 字段要求）
 function b64encode(str) {
   const bytes = new TextEncoder().encode(str);
   let bin = '';
@@ -278,10 +283,12 @@ function b64encode(str) {
   return btoa(bin);
 }
 
+// 转义 YAML frontmatter 中的双引号，避免破坏 Markdown 头
 function fmEscape(s) {
   return String(s == null ? '' : s).replace(/"/g, '\\"');
 }
 
+// 将审核申请的结构化数据渲染为对应 Decap 集合所需的 Markdown（含 frontmatter），通过审核时写回仓库
 function buildMarkdown(formKey, d) {
   const line = (k, v) => `${k}: "${fmEscape(v)}"`;
   if (formKey === 'expert') {
@@ -320,6 +327,7 @@ function buildMarkdown(formKey, d) {
   return '';
 }
 
+// 调用 GitHub Contents API 创建/更新文件（需 env.GITHUB_API_TOKEN，且对目标仓库有 repo 写权限）
 async function githubPut(env, path, content, message) {
   if (!env.GITHUB_API_TOKEN) return { ok: false, err: 'GITHUB_API_TOKEN 未配置' };
   const repo = 'GeniusORC/faai-astro-site';
@@ -339,6 +347,7 @@ async function githubPut(env, path, content, message) {
   return { ok: putRes.ok, status: putRes.status };
 }
 
+// 重定向回审核列表，并可选携带提示消息（msg）
 function redirectReview(admin, msg) {
   const loc = `/review?admin=${encodeURIComponent(admin)}` + (msg ? `&msg=${encodeURIComponent(msg)}` : '');
   return new Response(null, { status: 302, headers: { Location: loc, 'Cache-Control': 'no-store' } });
@@ -347,6 +356,7 @@ function redirectReview(admin, msg) {
 const TYPE_LABEL = { expert: '专家登记', member: '入会申请', project: '课题申请' };
 const FOLDER = { expert: 'experts', member: 'members', project: 'projects' };
 
+// 审核后台 HTML 外壳：统一样式，可选顶部提示横幅（msg）
 function reviewShell(admin, inner, msg) {
   const banner = msg ? `<div class="banner">${esc(msg)}</div>` : '';
   return '<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><title>申请审核后台</title>' +
@@ -378,6 +388,7 @@ function reviewShell(admin, inner, msg) {
     '</head><body><div class="wrap">' + banner + inner + '</div></body></html>';
 }
 
+// 审核列表：读取 KV 中所有未审批/未拒绝的申请，按专家/会员/课题分三组展示
 async function handleReviewList(env, admin, msg) {
   const list = await env.FORM_SUBMISSIONS.list();
   const all = [];
@@ -387,7 +398,10 @@ async function handleReviewList(env, admin, msg) {
   }
   const pending = all.filter((d) => d.status !== 'approved' && d.status !== 'rejected');
   const groups = { expert: [], member: [], project: [] };
-  for (const d of pending) if (groups[d._form]) groups[d._form].push(d);
+  for (const d of pending) {
+    const fk = d._form || (d.__key && d.__key.split('-')[0]);
+    if (groups[fk]) groups[fk].push(d);
+  }
 
   const col = (key) => {
     const items = groups[key];
@@ -408,6 +422,7 @@ async function handleReviewList(env, admin, msg) {
   return new Response(reviewShell(admin, inner, msg), { headers: { 'content-type': 'text/html; charset=utf-8' } });
 }
 
+// 单条申请详情：展示全部字段，并提供「通过并发布」「拒绝」两个操作
 async function handleReviewItem(env, key, admin) {
   const raw = await env.FORM_SUBMISSIONS.get(key);
   if (!raw) return new Response(reviewShell(admin, '<h1>申请审核后台</h1><div class="sub">记录不存在</div>'), { headers: { 'content-type': 'text/html; charset=utf-8' } });
@@ -427,6 +442,7 @@ async function handleReviewItem(env, key, admin) {
   return new Response(reviewShell(admin, inner, ''), { headers: { 'content-type': 'text/html; charset=utf-8' } });
 }
 
+// 处理通过/拒绝动作：status=approved 时调用 githubPut 写回对应集合 Markdown 并触发重建；随后更新 KV 中该申请状态
 async function handleReviewAction(request, env, status) {
   const form = await request.formData();
   const key = form.get('key');
