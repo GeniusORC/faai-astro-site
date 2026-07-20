@@ -4,8 +4,11 @@ backend:
   name: github
   repo: GeniusORC/faai-astro-site
   branch: main
-  auth_type: pkce                     # 免密钥，配合 GitHub OAuth App 使用
-  client_id: Ov23liigaiBfdCk6thtu    # GitHub OAuth App Client ID（2026-07-20 回填）
+  # GitHub backend 必须有服务端 OAuth 代理，不能用纯前端 PKCE。
+  # 这里用官网自己的两个 Cloudflare Pages Functions：/api/auth 和 /api/callback。
+  base_url: https://faai-astro-site.450311590.workers.dev
+  auth_endpoint: /api/auth
+  client_id: Ov23liigaiBfdCk6thtu    # GitHub OAuth App Client ID
 
 # 本地预览（可选）：先跑 `npx decap-server`，再把下面一行取消注释
 # local_backend: true
