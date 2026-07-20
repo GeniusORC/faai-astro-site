@@ -4,7 +4,7 @@ import { defineConfig } from 'astro/config';
 // 静态站点（SSG）。部署到 EdgeOne / Cloudflare Pages / Vercel 等任意静态托管。
 // 若部署到子路径（如 GitHub Pages 项目页），把 base 设为对应前缀，例如 '/repo'。
 export default defineConfig({
-  site: 'https://qigongwei.faai.org',
+  site: 'https://faai-astro-site.450311590.workers.dev',
   // base: '/',
   trailingSlash: 'ignore',
   build: {

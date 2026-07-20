@@ -6,7 +6,7 @@ export const SITE = {
   // 免费自托管表单后端：Cloudflare Worker（*.workers.dev 子域，免购域名）
   // 部署见 worker/ 目录与 SETUP.md「表单免费自托管」一节。
   // 也支持腾讯问卷免费档（见 SETUP.md 零代码备选）：在对应页面传 surveyUrl 即可。
-  formEndpoint: 'https://faai-forms.YOUR_SUBDOMAIN.workers.dev/submit',
+  formEndpoint: 'https://faai-forms.450311590.workers.dev/submit',
 };
 
 export const NAV = [
