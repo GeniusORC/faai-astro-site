@@ -1,4 +1,8 @@
-// 全站配置：标题、导航、表单后端地址（部署前替换）
+import siteCfg from './data/site.json';
+
+// 全站配置：标题、表单后端地址等「代码级结构配置」在此。
+// 注：导航 / 联系邮箱 / 页脚 / 公告等「可编辑站点内容」已迁移到 src/data/site.json，
+// 由 Decap CMS「站点配置 → 站点信息」后台管理；改文案无需动代码。
 export const SITE = {
   title: '福建省人工智能学会企业工作委员会',
   short: '企工委',
@@ -9,12 +13,5 @@ export const SITE = {
   formEndpoint: 'https://faai-forms.450311590.workers.dev/submit',
 };
 
-export const NAV = [
-  { href: '/', label: '首页' },
-  { href: '/gong-wei-jian-jie', label: '企工委简介' },
-  { href: '/xu-qiu-ku', label: '企业需求库' },
-  { href: '/zhuan-jia', label: '专家登记' },
-  { href: '/ru-hui', label: '入会申请' },
-  { href: '/ke-ti', label: '课题申请' },
-  { href: '/notices', label: '活动通知' },
-];
+export const NAV = siteCfg.nav;
+export const SITE_CFG = siteCfg;

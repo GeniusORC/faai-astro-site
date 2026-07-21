@@ -4,21 +4,7 @@ import Gallery from '../components/Gallery.astro';
 import ModuleCard from '../components/ModuleCard.astro';
 import NoticeList from '../components/NoticeList.astro';
 import { getCollection } from 'astro:content';
-
-const slides = [
-  { img: '/assets/img/activity-1.svg', title: '多模态智能体研讨会', sub: '2026 · 福州' },
-  { img: '/assets/img/activity-2.svg', title: '产学研对接 · 技术分享', sub: '企业工作委员会' },
-  { img: '/assets/img/activity-3.svg', title: '专家智库 · 课题申报', sub: '学会专家库' },
-  { img: '/assets/img/activity-4.svg', title: '企业需求对接 · 落地赋能', sub: '企业需求库' },
-];
-
-const modules = [
-  { href: '/xu-qiu-ku', icon: '📋', title: '企业需求库', desc: '发布技术/人才/合作需求，智能检索与精准匹配。', btn: '进入需求大厅 ›' },
-  { href: '/zhuan-jia', icon: '🎓', title: '学会专家登记表', desc: '高校与科研机构专家入库，共建产学研智库。', btn: '填写登记 ›' },
-  { href: '/ru-hui', icon: '🤝', title: '入会申请', desc: '企业/个人会员在线申请，审核通过即享权益。', btn: '申请入会 ›' },
-  { href: '/ke-ti', icon: '🔬', title: '课题申请', desc: '联合攻关课题在线申报，学会组织评审立项。', btn: '申报课题 ›' },
-  { href: '/notices', icon: '📢', title: '活动通知', desc: '最新通知公告、活动预告与行业资讯一站掌握。', btn: '查看通知 ›' },
-];
+import home from '../data/home.json';
 
 const notices = (await getCollection('notices'))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
@@ -34,15 +20,14 @@ const notices = (await getCollection('notices'))
 <BaseLayout>
   <section class="hero">
     <div class="wrap">
-      <span class="tag">产学研 · 智能赋能</span>
-      <h1>汇聚企业需求，链接学会专家</h1>
+      {home.hero_tag && <span class="tag">{home.hero_tag}</span>}
+      <h1>{home.hero_title}</h1>
       <div class="accent"></div>
-      <p>
-        企业工作委员会致力于搭建福建省人工智能领域「企业—高校—科研」协同桥梁，提供需求对接、专家登记、入会申请、课题申报与活动交流一站式服务。
-      </p>
+      {home.hero_desc && <p>{home.hero_desc}</p>}
       <div class="actions">
-        <a class="btn-primary" href="#modules">进入服务大厅</a>
-        <a class="btn-ghost" href="/gong-wei-jian-jie">企工委简介</a>
+        {home.hero_btns.map((b) => (
+          <a class={b.style === 'ghost' ? 'btn-ghost' : 'btn-primary'} href={b.href}>{b.text}</a>
+        ))}
       </div>
     </div>
   </section>
@@ -54,7 +39,7 @@ const notices = (await getCollection('notices'))
         <h3>活动精选</h3>
         <span class="more"><a href="/notices">更多通知 ›</a></span>
       </div>
-      <Gallery slides={slides} />
+      <Gallery slides={home.slides} />
     </section>
 
     <section class="section alt" id="modules">
@@ -64,7 +49,7 @@ const notices = (await getCollection('notices'))
         <span class="more">五大核心服务</span>
       </div>
       <div class="svc-grid">
-        {modules.map((m) => <ModuleCard {...m} />)}
+        {home.modules.map((m) => <ModuleCard {...m} />)}
       </div>
     </section>
 

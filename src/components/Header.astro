@@ -1,6 +1,16 @@
 ---
-import { NAV, SITE } from '../site';
+import { NAV, SITE, SITE_CFG } from '../site';
 ---
+
+{SITE_CFG.top_announce_text && (
+  <div class="announce-bar">
+    <div class="wrap">
+      {SITE_CFG.top_announce_link
+        ? <a href={SITE_CFG.top_announce_link}>{SITE_CFG.top_announce_text}</a>
+        : <span>{SITE_CFG.top_announce_text}</span>}
+    </div>
+  </div>
+)}
 
 <header class="site-header">
   <div class="wrap bar">

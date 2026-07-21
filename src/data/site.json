@@ -1,0 +1,16 @@
+{
+  "nav": [
+    { "href": "/", "label": "首页" },
+    { "href": "/gong-wei-jian-jie", "label": "企工委简介" },
+    { "href": "/xu-qiu-ku", "label": "企业需求库" },
+    { "href": "/zhuan-jia", "label": "专家登记" },
+    { "href": "/ru-hui", "label": "入会申请" },
+    { "href": "/ke-ti", "label": "课题申请" },
+    { "href": "/notices", "label": "活动通知" }
+  ],
+  "contact_email": "qigongwei@faai.org",
+  "footer_about": "搭建福建省人工智能领域「企业—高校—科研」协同桥梁，提供需求对接、专家登记、入会申请、课题申报与活动交流一站式服务。",
+  "footer_copyright": "",
+  "top_announce_text": "",
+  "top_announce_link": ""
+}

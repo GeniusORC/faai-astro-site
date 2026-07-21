@@ -1,5 +1,5 @@
 ---
-import { NAV, SITE } from '../site';
+import { NAV, SITE, SITE_CFG } from '../site';
 ---
 
 <footer class="site-footer">
@@ -7,9 +7,7 @@ import { NAV, SITE } from '../site';
     <div class="cols">
       <div>
         <h4>{SITE.title}</h4>
-        <p>
-          搭建福建省人工智能领域「企业—高校—科研」协同桥梁，提供需求对接、专家登记、入会申请、课题申报与活动交流一站式服务。
-        </p>
+        <p>{SITE_CFG.footer_about}</p>
       </div>
       <div>
         <h4>快速入口</h4>
@@ -17,12 +15,12 @@ import { NAV, SITE } from '../site';
       </div>
       <div>
         <h4>联系我们</h4>
-        <a href="mailto:qigongwei@faai.org">qigongwei@faai.org</a>
+        <a href={`mailto:${SITE_CFG.contact_email}`}>{SITE_CFG.contact_email}</a>
         <a href="/gong-wei-jian-jie">关于我们</a>
       </div>
     </div>
     <div class="copy">
-      © {new Date().getFullYear()} {SITE.title}
+      © {new Date().getFullYear()} {SITE_CFG.footer_copyright || SITE.title}
     </div>
   </div>
 </footer>

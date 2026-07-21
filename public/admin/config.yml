@@ -95,5 +95,63 @@ collections:
       - { label: "课题类型", name: "type", widget: "select", options: ["联合攻关", "企业委托", "学生课题", "开放课题"], default: "联合攻关" }
       - { label: "联系电话", name: "phone", widget: "string", required: false }
       - { label: "电子邮箱", name: "email", widget: "string", required: false }
-      - { label: "课题摘要", name: "abstract", widget: "text", required: false }
-      - { label: "排序", name: "order", widget: "number", default: 0, value_type: "int", required: false }
+    - { label: "课题摘要", name: "abstract", widget: "text", required: false }
+    - { label: "排序", name: "order", widget: "number", default: 0, value_type: "int", required: false }
+
+  # ---------- 站点级配置（单文件，可编辑整站外壳） ----------
+  - name: "site"
+    label: "站点配置"
+    files:
+      - name: "home"
+        label: "首页横幅与轮播"
+        file: "src/data/home.json"
+        fields:
+          - { label: "横幅标签", name: "hero_tag", widget: "string", required: false, hint: "横幅上方小标签，如「产学研 · 智能赋能」" }
+          - { label: "横幅主标题", name: "hero_title", widget: "string", required: true }
+          - { label: "横幅副文案", name: "hero_desc", widget: "text", required: false }
+          - name: "hero_btns"
+            label: "横幅按钮"
+            label_singular: "按钮"
+            widget: "list"
+            summary: "{{fields.text}}"
+            fields:
+              - { label: "按钮文字", name: "text", widget: "string", required: true }
+              - { label: "链接", name: "href", widget: "string", required: true, hint: "站内用 /xxx，页内锚点用 #modules，外链用 https://" }
+              - { label: "样式", name: "style", widget: "select", options: [{ label: "主按钮(实心)", value: "primary" }, { label: "次按钮(描边)", value: "ghost" }], default: "primary" }
+          - name: "slides"
+            label: "活动精选轮播"
+            label_singular: "轮播图"
+            widget: "list"
+            summary: "{{fields.title}}"
+            fields:
+              - { label: "图片", name: "img", widget: "image", required: true }
+              - { label: "标题", name: "title", widget: "string", required: true }
+              - { label: "副标题", name: "sub", widget: "string", required: false }
+          - name: "modules"
+            label: "服务大厅卡片"
+            label_singular: "服务卡片"
+            widget: "list"
+            summary: "{{fields.title}}"
+            fields:
+              - { label: "图标(emoji)", name: "icon", widget: "string", required: false }
+              - { label: "标题", name: "title", widget: "string", required: true }
+              - { label: "描述", name: "desc", widget: "text", required: false }
+              - { label: "按钮文字", name: "btn", widget: "string", required: false }
+              - { label: "链接", name: "href", widget: "string", required: true }
+      - name: "siteinfo"
+        label: "站点信息（导航/页脚/公告）"
+        file: "src/data/site.json"
+        fields:
+          - name: "nav"
+            label: "顶部导航菜单"
+            label_singular: "菜单项"
+            widget: "list"
+            summary: "{{fields.label}}"
+            fields:
+              - { label: "菜单文字", name: "label", widget: "string", required: true }
+              - { label: "链接", name: "href", widget: "string", required: true }
+          - { label: "联系邮箱", name: "contact_email", widget: "string", required: false }
+          - { label: "页脚简介", name: "footer_about", widget: "text", required: false }
+          - { label: "页脚版权(留空用站点名)", name: "footer_copyright", widget: "string", required: false }
+          - { label: "顶部公告文字(留空不显示)", name: "top_announce_text", widget: "string", required: false }
+          - { label: "公告链接(可选)", name: "top_announce_link", widget: "string", required: false }
