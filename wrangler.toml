@@ -1,0 +1,9 @@
+# 企工委官网 · 静态站部署配置（Cloudflare Worker + Static Assets）
+# 部署命令：wrangler deploy
+# 线上地址：https://faai-astro-site.450311590.workers.dev
+name = "faai-astro-site"
+account_id = "09852337b3fb556c0d2d7a062f899f58"
+compatibility_date = "2024-09-01"
+
+# 纯静态资源托管：直接服务 dist/ 构建产物，无需 Worker 脚本
+assets = { directory = "./dist" }
