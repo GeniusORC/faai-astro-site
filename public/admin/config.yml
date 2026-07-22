@@ -95,8 +95,8 @@ collections:
       - { label: "课题类型", name: "type", widget: "select", options: ["联合攻关", "企业委托", "学生课题", "开放课题"], default: "联合攻关" }
       - { label: "联系电话", name: "phone", widget: "string", required: false }
       - { label: "电子邮箱", name: "email", widget: "string", required: false }
-    - { label: "课题摘要", name: "abstract", widget: "text", required: false }
-    - { label: "排序", name: "order", widget: "number", default: 0, value_type: "int", required: false }
+      - { label: "课题摘要", name: "abstract", widget: "text", required: false }
+      - { label: "排序", name: "order", widget: "number", default: 0, value_type: "int", required: false }
 
   # ---------- 站点级配置（单文件，可编辑整站外壳） ----------
   - name: "site"
